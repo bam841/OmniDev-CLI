@@ -40,6 +40,15 @@ Additionally, users supply arrays of API keys in `~/.omnidev/config.json` for Op
   - If all keys for a provider are exhausted/cooling down, OmniDev can either fall back to an alternate configured provider or display an informative countdown banner.
   - Cooldowns remain in-memory per CLI session, avoiding stale cache lockouts across reboots.
 
+### 3. Execution Boundary & Data Flow (Local CLI vs. Cloud LLMs)
+- **Local Client-Side Execution (User's Machine):**
+  - OmniDev CLI runs 100% locally on the developer's machine as a Node.js binary.
+  - File reading, `.gitignore` traversal, chunking, `git diff` extraction, and disk writing (`.omnidev/plan.md`, source code modifications) happen strictly on the local machine.
+  - API keys stay stored locally in `~/.omnidev/config.json` and are never forwarded to any third-party server other than the designated LLM provider endpoint.
+- **Remote Cloud Processing (LLM Provider Servers):**
+  - Inference, reasoning, and token generation take place remotely on the cloud servers of the respective AI providers (Google Gemini, OpenAI, Anthropic) via direct HTTPS API calls.
+  - **Exception:** If the user explicitly selects `ollama` as their provider, inference runs 100% locally on their own hardware. Otherwise, for all standard commercial models, model computation happens on the provider's cloud servers.
+
 ---
 
 ## Consequences
