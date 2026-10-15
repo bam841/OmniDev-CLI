@@ -1,0 +1,56 @@
+{
+  "name": "omnidev-cli",
+  "version": "0.1.0",
+  "description": "Autonomous multi-agent CLI for planning, coding, and code review with BYOK key rotation",
+  "type": "module",
+  "bin": {
+    "omnidev": "./dist/index.js"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "cli",
+    "ai",
+    "agent",
+    "planner",
+    "coder",
+    "reviewer",
+    "byok",
+    "gemini",
+    "openai",
+    "anthropic",
+    "ollama"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@ai-sdk/anthropic": "^1.1.9",
+    "@ai-sdk/google": "^1.1.16",
+    "@ai-sdk/openai": "^1.1.13",
+    "@clack/prompts": "^0.9.1",
+    "@commander-js/extra-typings": "^13.0.0",
+    "ai": "^4.1.45",
+    "boxen": "^8.0.1",
+    "chalk": "^5.4.1",
+    "commander": "^13.1.0",
+    "ignore": "^7.0.3",
+    "ollama-ai-provider": "^1.2.0",
+    "ora": "^8.2.0",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.4",
+    "tsup": "^8.4.0",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.5"
+  }
+}
