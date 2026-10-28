@@ -84,6 +84,25 @@ The Coder agent creates and updates target files safely, marking completed tasks
 
 ---
 
+
+---
+
+### 🎨 Zero-Cost UI & Wireframe Generation (Open Relume Engine)
+
+Designed for students and developers who want to generate complete Tailwind wireframes and component sitemaps at $0 cost without paying for Relume API or MCP subscriptions:
+
+```bash
+# 1. Generate UI Wireframe Plan & Component Sitemap (.omnidev/sitemap.json)
+omnidev plan --ui "Build a clean landing page for a student campus event tracker"
+
+# 2. Assemble React + Tailwind Wireframe Components and Page Layouts
+omnidev code --ui
+```
+
+- **Open Component Catalog:** Maps pages to open-source wireframe sections (`navbar-01`, `hero-relume-01`, `features-grid-01`, `pricing-01`, `footer-01`) with strict TypeScript props.
+- **Free-Tier Friendly:** Powered by zero-cost LLM tiers (Gemini 1.5/2.5 Flash, Groq, local Ollama) with automated BYOK key rotation.
+- **Zero Lock-In:** Generates pure, editable React + TypeScript + Tailwind CSS code directly into your workspace.
+
 ### 4. Review Changes
 Run the Reviewer agent to audit git modifications:
 ```bash

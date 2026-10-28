@@ -91,4 +91,51 @@ describe("State Store (.omnidev/)", () => {
     expect(tasks[1].index).toBe(2);
     expect(tasks[1].completed).toBe(true);
   });
+  it("saves and loads sitemap.json for UI wireframes", () => {
+    const sitemap: UISitemap = {
+      projectName: "Event Tracker",
+      description: "Student event tracker app",
+      pages: [
+        {
+          path: "/",
+          title: "Home",
+          sections: [
+            {
+              id: "hero-relume-01",
+              category: "hero",
+              name: "Split Hero",
+              props: {
+                heading: "Discover Campus Events",
+                tagline: "Free for Students",
+              },
+            },
+            {
+              id: "features-grid-01",
+              category: "features",
+              name: "Features Grid",
+              props: {
+                heading: "Features",
+              },
+            },
+          ],
+        },
+      ],
+    };
+
+    const sitemapPath = saveSitemap(sitemap, tempDir);
+    expect(fs.existsSync(sitemapPath)).toBe(true);
+
+    const loaded = loadSitemap(tempDir);
+    expect(loaded).not.toBeNull();
+    expect(loaded?.projectName).toBe("Event Tracker");
+    expect(loaded?.pages[0].sections.length).toBe(2);
+    expect(loaded?.pages[0].sections[0].id).toBe("hero-relume-01");
+  });
+
+  it("loads UI blocks catalog with fallback", () => {
+    const catalog = loadUIBlocksIndex(tempDir);
+    expect(catalog).toBeDefined();
+    expect(catalog.blocks).toBeInstanceOf(Array);
+    expect(catalog.blocks.length).toBeGreaterThan(0);
+  });
 });

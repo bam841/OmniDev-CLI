@@ -4,9 +4,11 @@ import {
   savePlan,
   loadState,
   saveState,
+  loadSitemap,
   parsePlanTasks,
   type SessionState,
   type ParsedTask,
+  type UISitemap,
 } from "../core/context/state.js";
 import { readFileSafe, writeFileSafe } from "../utils/fs.js";
 
@@ -14,6 +16,7 @@ export interface CoderOptions {
   cwd?: string;
   step?: number;
   all?: boolean;
+  ui?: boolean;
   model?: string;
   router?: LLMRouter;
   onChunk?: (text: string) => void;
@@ -24,6 +27,7 @@ export interface CoderResult {
   executedTasks: ParsedTask[];
   modifiedFiles: string[];
   allCompleted: boolean;
+  sitemap?: UISitemap | null;
 }
 
 export interface ExtractedFile {
@@ -45,6 +49,23 @@ FILE: relative/path/to/file.ext
 
 3. You may emit multiple FILE blocks if the task requires creating or modifying multiple files.
 4. Only output files directly necessary for this specific task.`;
+
+export const CODER_UI_SYSTEM_PROMPT = `You are OmniDev's Expert UI Coder & Relume-Style Component Assembler.
+Your responsibility is to implement the specified task from the project plan and .omnidev/sitemap.json, generating production-grade React + TypeScript + Tailwind CSS wireframe components with zero subscription costs.
+
+Rules:
+1. Write clean, complete, fully typed TypeScript code for each component in \`src/components/sections/\`.
+2. Accept the exact props provided in the sitemap for each section.
+3. Apply standard Tailwind CSS classes to achieve the clean, high-contrast, minimalist Relume wireframe aesthetic.
+4. Assemble pages (e.g. \`src/App.tsx\` or \`app/page.tsx\`) by importing the generated section components in order and passing the sitemap's copywriting props.
+5. Emit your file changes strictly in this format:
+
+FILE: relative/path/to/file.ext
+\`\`\`language
+<complete file contents here>
+\`\`\`
+
+6. You may emit multiple FILE blocks if the task requires creating or modifying multiple files.`;
 
 export function extractFilesFromResponse(response: string): ExtractedFile[] {
   const files: ExtractedFile[] = [];
@@ -88,6 +109,9 @@ export async function runCoder(options: CoderOptions): Promise<CoderResult> {
     };
   }
 
+  const sitemap = loadSitemap(cwd) || state.uiSitemap || null;
+  const isUIMode = Boolean(options.ui || (sitemap && options.all));
+
   const tasks = parsePlanTasks(planMarkdown);
   if (tasks.length === 0) {
     throw new Error("No tasks found in .omnidev/plan.md. Check plan formatting.");
@@ -102,8 +126,11 @@ export async function runCoder(options: CoderOptions): Promise<CoderResult> {
       throw new Error(`Task ${options.step} not found in plan (Available tasks: 1 to ${tasks.length}).`);
     }
     tasksToRun = [target];
-  } else if (options.all) {
+  } else if (options.all || options.ui) {
     tasksToRun = tasks.filter((t) => !t.completed);
+    if (tasksToRun.length === 0 && tasks.length > 0) {
+      tasksToRun = tasks;
+    }
   } else {
     // Single next pending task
     const nextTask = tasks.find((t) => !t.completed) || tasks[0];
@@ -113,9 +140,10 @@ export async function runCoder(options: CoderOptions): Promise<CoderResult> {
   const allModifiedFiles: string[] = [];
   let updatedPlan = planMarkdown;
 
+  const systemPrompt = isUIMode ? CODER_UI_SYSTEM_PROMPT : CODER_SYSTEM_PROMPT;
+
   for (const task of tasksToRun) {
-    // Collect context for files mentioned in the plan if they already exist
-    const userPrompt = `
+    let userPrompt = `
 Current Task to Implement:
 Task ${task.index}: ${task.title}
 ${task.rawText}
@@ -124,11 +152,21 @@ Full Project Plan Context:
 \`\`\`markdown
 ${planMarkdown}
 \`\`\`
+`;
 
-Implement all changes needed for Task ${task.index}. Format each file using the FILE: <path> format.`;
+    if (sitemap) {
+      userPrompt += `
+Active UI Sitemap (.omnidev/sitemap.json):
+\`\`\`json
+${JSON.stringify(sitemap, null, 2)}
+\`\`\`
+`;
+    }
+
+    userPrompt += `\nImplement all changes needed for Task ${task.index}. Format each file using the FILE: <path> format.`;
 
     const coderOutput = await router.stream({
-      system: CODER_SYSTEM_PROMPT,
+      system: systemPrompt,
       prompt: userPrompt,
       model: options.model,
       onChunk: options.onChunk,
@@ -137,7 +175,7 @@ Implement all changes needed for Task ${task.index}. Format each file using the 
     const files = extractFilesFromResponse(coderOutput);
 
     for (const f of files) {
-      const writtenPath = writeFileSafe(f.relativePath, f.content, cwd);
+      writeFileSafe(f.relativePath, f.content, cwd);
       allModifiedFiles.push(f.relativePath);
       if (options.onFileWritten) {
         options.onFileWritten(f.relativePath);
@@ -169,5 +207,6 @@ Implement all changes needed for Task ${task.index}. Format each file using the 
     executedTasks: tasksToRun,
     modifiedFiles: allModifiedFiles,
     allCompleted: remaining.length === 0,
+    sitemap,
   };
 }

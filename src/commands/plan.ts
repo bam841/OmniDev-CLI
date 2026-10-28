@@ -8,12 +8,27 @@ export function createPlanCommand(): Command {
     .description("Analyze project context and generate an execution roadmap in .omnidev/plan.md")
     .argument("<prompt>", "Description of the feature, refactor, or bug to plan")
     .option("-m, --model <model>", "Override default LLM model")
+    .option("-u, --ui", "Generate a UI wireframe and sitemap plan using free open-source component blocks")
     .option("--dry-run", "Output the plan without writing to disk")
     .action(async (prompt, options) => {
-      console.log(banner("OmniDev Planner", "Architectural Analysis & Task Decomposition"));
-      log.info(`Objective: ${chalk.bold.cyan(prompt)}`);
+      const title = options.ui
+        ? "OmniDev UI Planner (Open Relume Engine)"
+        : "OmniDev Planner";
+      const subtitle = options.ui
+        ? "Zero-Cost Wireframe & Component Sitemap Decomposition"
+        : "Architectural Analysis & Task Decomposition";
 
-      const spinner = createSpinner("Scanning repository context and architecting plan...");
+      console.log(banner(title, subtitle));
+      log.info(`Objective: ${chalk.bold.cyan(prompt)}`);
+      if (options.ui) {
+        log.info(chalk.dim("Mode: UI Wireframe & Component Sitemap Planning"));
+      }
+
+      const spinnerMsg = options.ui
+        ? "Analyzing interface requirements and building component sitemap..."
+        : "Scanning repository context and architecting plan...";
+
+      const spinner = createSpinner(spinnerMsg);
       spinner.start();
 
       let isStreaming = false;
@@ -22,6 +37,7 @@ export function createPlanCommand(): Command {
         const result = await runPlanner({
           prompt,
           model: options.model,
+          ui: options.ui,
           dryRun: options.dryRun,
           onChunk: (chunk) => {
             if (!isStreaming) {
@@ -41,12 +57,19 @@ export function createPlanCommand(): Command {
         if (options.dryRun) {
           log.info("Dry-run complete. No files written.");
         } else {
+          let details = `Saved to: ${chalk.bold.cyan(result.planPath)}\n`;
+          if (result.sitemapPath) {
+            details += `Sitemap: ${chalk.bold.cyan(result.sitemapPath)}\n`;
+          }
+          details += `Total tasks detected: ${chalk.bold.yellow(result.tasksCount)}\n\n`;
+
+          const nextCmd = options.ui ? "omnidev code --ui" : "omnidev code";
+          details += `Next step: Run ${chalk.bold.green(nextCmd)} to begin implementation.`;
+
           console.log(
             successBox(
-              "Plan Generated Successfully!",
-              `Saved to: ${chalk.bold.cyan(result.planPath)}\n` +
-              `Total tasks detected: ${chalk.bold.yellow(result.tasksCount)}\n\n` +
-              `Next step: Run ${chalk.bold.green("omnidev code")} to begin implementation.`
+              options.ui ? "UI Plan & Sitemap Generated Successfully!" : "Plan Generated Successfully!",
+              details
             )
           );
         }

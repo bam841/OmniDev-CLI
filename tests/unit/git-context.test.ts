@@ -15,13 +15,13 @@ describe("Git Context Extractor", () => {
 
     // Initialize real git repo
     execSync("git init", { cwd: gitDir });
-    execSync("git config user.name 'Test User'", { cwd: gitDir });
-    execSync("git config user.email 'test@example.com'", { cwd: gitDir });
+    execSync('git config user.name "Test User"', { cwd: gitDir });
+    execSync('git config user.email "test@example.com"', { cwd: gitDir });
 
     // Initial commit
     fs.writeFileSync(path.join(gitDir, "hello.txt"), "hello world\n");
     execSync("git add hello.txt", { cwd: gitDir });
-    execSync("git commit -m 'Initial commit'", { cwd: gitDir });
+    execSync('git commit -m "Initial commit"', { cwd: gitDir });
   });
 
   afterEach(() => {

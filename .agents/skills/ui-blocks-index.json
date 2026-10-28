@@ -1,0 +1,136 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "version": "1.0.0",
+  "description": "Zero-cost open-source UI wireframe block registry for OmniDev CLI, offering Relume-style Tailwind components.",
+  "blocks": [
+    {
+      "id": "navbar-01",
+      "category": "navbar",
+      "name": "Classic Header Navigation",
+      "description": "Clean sticky navigation bar with brand logo/name, links, and right-aligned CTA button.",
+      "props": {
+        "brandName": "string",
+        "navLinks": "Array<{ label: string, href: string }>",
+        "ctaText": "string",
+        "ctaHref": "string"
+      }
+    },
+    {
+      "id": "hero-relume-01",
+      "category": "hero",
+      "name": "Split Hero with Media",
+      "description": "Two-column wireframe hero with category tagline, high-impact headline, descriptive body, dual CTAs, and mockup media placeholder.",
+      "props": {
+        "tagline": "string",
+        "heading": "string",
+        "description": "string",
+        "primaryCtaText": "string",
+        "secondaryCtaText": "string",
+        "imageUrl": "string"
+      }
+    },
+    {
+      "id": "hero-centered-02",
+      "category": "hero",
+      "name": "Centered Minimalist Hero",
+      "description": "Modern centered hero section with announcement badge, bold headline, supporting paragraph, and primary action button.",
+      "props": {
+        "badgeText": "string",
+        "heading": "string",
+        "description": "string",
+        "ctaText": "string",
+        "ctaHref": "string"
+      }
+    },
+    {
+      "id": "features-grid-01",
+      "category": "features",
+      "name": "Three-Column Feature Cards",
+      "description": "Balanced 3-column card grid displaying core capabilities with icons, titles, and explanations.",
+      "props": {
+        "tagline": "string",
+        "heading": "string",
+        "subheading": "string",
+        "features": "Array<{ icon: string, title: string, description: string }>"
+      }
+    },
+    {
+      "id": "feature-bento-02",
+      "category": "features",
+      "name": "Bento Grid Showcase",
+      "description": "Asymmetric bento box layout highlighting primary and secondary product features.",
+      "props": {
+        "heading": "string",
+        "description": "string",
+        "items": "Array<{ title: string, description: string, tag: string, span: string }>"
+      }
+    },
+    {
+      "id": "stats-01",
+      "category": "stats",
+      "name": "Metrics & Social Proof Counter",
+      "description": "Row of key metrics, numbers, and impact proof points.",
+      "props": {
+        "stats": "Array<{ value: string, label: string, description?: string }>"
+      }
+    },
+    {
+      "id": "pricing-01",
+      "category": "pricing",
+      "name": "Three-Tier Pricing Table",
+      "description": "Comparison pricing table for Free, Pro, and Enterprise tiers with highlight on recommended plan.",
+      "props": {
+        "tagline": "string",
+        "heading": "string",
+        "subheading": "string",
+        "tiers": "Array<{ name: string, price: string, period: string, description: string, features: string[], ctaText: string, highlighted?: boolean }>"
+      }
+    },
+    {
+      "id": "testimonials-01",
+      "category": "testimonials",
+      "name": "Customer Quotes & Testimonials",
+      "description": "Grid of social proof quotes with avatar, author name, and organization role.",
+      "props": {
+        "heading": "string",
+        "subheading": "string",
+        "testimonials": "Array<{ quote: string, author: string, role: string, avatarUrl?: string }>"
+      }
+    },
+    {
+      "id": "cta-banner-01",
+      "category": "cta",
+      "name": "High-Impact Conversion Banner",
+      "description": "Contrasting call-to-action banner with compelling headline, reassurance note, and action trigger.",
+      "props": {
+        "heading": "string",
+        "description": "string",
+        "primaryCtaText": "string",
+        "secondaryCtaText": "string"
+      }
+    },
+    {
+      "id": "faq-accordion-01",
+      "category": "faq",
+      "name": "Frequently Asked Questions",
+      "description": "Expandable list of common questions and answers for prospect clarity.",
+      "props": {
+        "heading": "string",
+        "subheading": "string",
+        "faqs": "Array<{ question: string, answer: string }>"
+      }
+    },
+    {
+      "id": "footer-01",
+      "category": "footer",
+      "name": "Multi-Column Navigation Footer",
+      "description": "Comprehensive footer with brand overview, categorised sitemap links, and copyright text.",
+      "props": {
+        "brandName": "string",
+        "brandDescription": "string",
+        "linkColumns": "Array<{ title: string, links: Array<{ label: string, href: string }> }>",
+        "copyright": "string"
+      }
+    }
+  ]
+}

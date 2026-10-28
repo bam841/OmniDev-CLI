@@ -2,8 +2,8 @@
 
 ## 1. System Identity & Mission
 OmniDev CLI is an autonomous, developer-first command-line assistant designed to accelerate the software engineering lifecycle. It coordinates three specialized AI agent roles:
-1. **Planner Agent (`omnidev plan <task>`):** Analyzes project structure, requirements, and constraints to generate a discrete, testable implementation roadmap saved in `.omnidev/plan.md`.
-2. **Coder Agent (`omnidev code`):** Reads `.omnidev/plan.md`, implements tasks vertically one-by-one, creates/modifies files, and updates execution state in `.omnidev/state.json`.
+1. **Planner Agent (`omnidev plan <task>` / `omnidev plan --ui <prompt>`):** Analyzes project structure, requirements, and constraints to generate a discrete, testable implementation roadmap saved in `.omnidev/plan.md`. When run with `--ui`, acts as an Open Relume sitemap engine generating `.omnidev/sitemap.json` with mapped component block IDs and copywriting props.
+2. **Coder Agent (`omnidev code` / `omnidev code --ui`):** Reads `.omnidev/plan.md` and `.omnidev/sitemap.json`, implements tasks vertically one-by-one, creates/modifies files, and updates execution state in `.omnidev/state.json`. In `--ui` mode, generates production-ready React + Tailwind wireframe components and assembles page views.
 3. **Reviewer Agent (`omnidev review`):** Examines working directory and staged changes via `git diff`, validates changes against acceptance criteria in the plan, and flags security vulnerabilities, performance regressions, and logic bugs in `.omnidev/review.md`.
 
 ---
@@ -30,7 +30,8 @@ OmniDev CLI is an autonomous, developer-first command-line assistant designed to
 OmniDev-CLI/
 ├── .agents/
 │   └── skills/
-│       └── context.md             # This file: core architectural memory
+│       ├── context.md             # This file: core architectural memory
+│       └── ui-blocks-index.json   # Open Relume/Tailwind component block registry
 ├── docs/
 │   ├── adr/                       # Architectural Decision Records (ADR-001, ADR-002, ...)
 │   └── PLAN.md                    # Step-by-step master execution plan
@@ -92,7 +93,12 @@ OmniDev-CLI/
   - `plan` writes `.omnidev/plan.md` and initializes `.omnidev/state.json`.
   - `code` reads `.omnidev/plan.md`, marks completed tasks in `.omnidev/state.json`, and modifies codebase files.
   - `review` compares the working branch / diff against the criteria in `.omnidev/plan.md` and outputs `.omnidev/review.md`.
+  - `plan --ui` outputs `.omnidev/sitemap.json` consumed by `code --ui` for zero-cost component assembly.
 
 ### Rule 5: Strict Schema Validation
 - All inputs from `~/.omnidev/config.json` must be validated with Zod.
 - If a config file is corrupt or missing required fields, OmniDev must not crash with an unhandled exception; it must display an actionable error message guiding the user to run `omnidev config`.
+
+### Rule 6: Zero-Cost Open UI Architecture
+- OmniDev provides students and developers with full sitemap, wireframe, and component generation at $0 cost.
+- Do not introduce dependencies on paid Relume MCP or proprietary API endpoints. Use the local block index (`.agents/skills/ui-blocks-index.json`), open shadcn CLI registries, and standard Tailwind CSS primitives.

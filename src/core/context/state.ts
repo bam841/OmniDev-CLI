@@ -1,6 +1,36 @@
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 import { z } from "zod";
+
+export const UISectionSchema = z.object({
+  id: z.string(),
+  blockId: z.string().optional(),
+  category: z.string(),
+  name: z.string(),
+  props: z.record(z.any()).default({}),
+});
+
+export type UISection = z.infer<typeof UISectionSchema>;
+
+export const UIPageSchema = z.object({
+  path: z.string(),
+  title: z.string(),
+  sections: z.array(UISectionSchema),
+});
+
+export type UIPage = z.infer<typeof UIPageSchema>;
+
+export const UISitemapSchema = z.object({
+  projectName: z.string().default("OmniDev App"),
+  description: z.string().optional(),
+  pages: z.array(UIPageSchema),
+});
+
+export type UISitemap = z.infer<typeof UISitemapSchema>;
 
 export const SessionStateSchema = z.object({
   sessionId: z.string(),
@@ -13,6 +43,7 @@ export const SessionStateSchema = z.object({
   totalSteps: z.number().default(0),
   completedSteps: z.array(z.number()).default([]),
   status: z.enum(["planning", "in_progress", "completed", "reviewed"]).default("planning"),
+  uiSitemap: UISitemapSchema.optional(),
 });
 
 export type SessionState = z.infer<typeof SessionStateSchema>;
@@ -61,6 +92,74 @@ export function loadPlan(cwd: string = process.cwd()): string | null {
   const planPath = path.join(getOmniDevDir(cwd), "plan.md");
   if (!fs.existsSync(planPath)) return null;
   return fs.readFileSync(planPath, "utf-8");
+}
+
+export function saveSitemap(sitemap: UISitemap, cwd: string = process.cwd()): string {
+  const dir = ensureOmniDevDir(cwd);
+  const sitemapPath = path.join(dir, "sitemap.json");
+  const validated = UISitemapSchema.parse(sitemap);
+  fs.writeFileSync(sitemapPath, JSON.stringify(validated, null, 2), "utf-8");
+  return sitemapPath;
+}
+
+export function loadSitemap(cwd: string = process.cwd()): UISitemap | null {
+  const sitemapPath = path.join(getOmniDevDir(cwd), "sitemap.json");
+  if (!fs.existsSync(sitemapPath)) return null;
+  try {
+    const raw = fs.readFileSync(sitemapPath, "utf-8");
+    return UISitemapSchema.parse(JSON.parse(raw));
+  } catch {
+    return null;
+  }
+}
+
+export function loadUIBlocksIndex(cwd: string = process.cwd()): any {
+  const pathsToTry = [
+    path.join(path.resolve(cwd), ".agents", "skills", "ui-blocks-index.json"),
+    path.join(__dirname, "..", "..", "..", ".agents", "skills", "ui-blocks-index.json"),
+  ];
+
+  for (const p of pathsToTry) {
+    if (fs.existsSync(p)) {
+      try {
+        return JSON.parse(fs.readFileSync(p, "utf-8"));
+      } catch {}
+    }
+  }
+
+  return {
+    version: "1.0.0",
+    blocks: [
+      {
+        id: "navbar-01",
+        category: "navbar",
+        name: "Classic Header Navigation",
+        description: "Sticky navigation bar with logo, navigation links, and CTA button.",
+        props: { brandName: "string", navLinks: "Array<{ label: string, href: string }>", ctaText: "string" },
+      },
+      {
+        id: "hero-relume-01",
+        category: "hero",
+        name: "Split Hero with Media",
+        description: "Two-column wireframe hero with tagline, headline, description, dual CTAs, and image placeholder.",
+        props: { tagline: "string", heading: "string", description: "string", primaryCtaText: "string", secondaryCtaText: "string" },
+      },
+      {
+        id: "features-grid-01",
+        category: "features",
+        name: "Three-Column Feature Cards",
+        description: "Three-column grid showcasing features with icons and descriptions.",
+        props: { heading: "string", subheading: "string", features: "Array<{ title: string, description: string }>" },
+      },
+      {
+        id: "footer-01",
+        category: "footer",
+        name: "Multi-Column Footer",
+        description: "Footer with company description and categorized link columns.",
+        props: { brandName: "string", copyright: "string" },
+      },
+    ],
+  };
 }
 
 export function saveState(state: SessionState, cwd: string = process.cwd()): void {

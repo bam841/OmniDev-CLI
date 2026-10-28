@@ -236,6 +236,55 @@ Phase 1: Project Scaffolding & Configuration Manager
 
 ---
 
+
+---
+
+### Phase 6: Zero-Cost UI/Wireframe Generation (Open Relume Engine)
+
+#### Task 6.1: Open Component Registry & Local Block Catalog
+- **Description:** Implement `.agents/skills/ui-blocks-index.json` containing metadata and prop definitions for open-source Relume-style Tailwind components (Navbar, Hero, Features, Bento, Stats, Pricing, Testimonials, CTA, FAQ, Footer) and helper functions to load it without external network calls.
+- **Acceptance Criteria:**
+  - Compact JSON block index (~2k tokens) detailing block IDs, categories, descriptions, and TypeScript prop signatures.
+  - `loadUIBlocksIndex()` in `src/core/context/state.ts` loads catalog with automatic fallback.
+- **Verification:**
+  - `npm test tests/unit/state-store.test.ts`
+- **Files:** `.agents/skills/ui-blocks-index.json`, `src/core/context/state.ts`
+- **Scope:** Small (2 files)
+
+#### Task 6.2: UI Sitemap State Handoff
+- **Description:** Extend `SessionStateSchema` and state engine in `src/core/context/state.ts` to support `UISitemap` schema (`projectName`, `pages`, `sections`, and component props). Implement `saveSitemap` and `loadSitemap` persisting to `.omnidev/sitemap.json`.
+- **Acceptance Criteria:**
+  - Strict Zod validation for `UISitemapSchema`.
+  - Atomically writes and reads `.omnidev/sitemap.json`.
+  - State serializes optional `uiSitemap` without breaking standard tasks.
+- **Verification:**
+  - `npm test tests/unit/state-store.test.ts`
+- **Files:** `src/core/context/state.ts`, `tests/unit/state-store.test.ts`
+- **Scope:** Small (2 files)
+
+#### Task 6.3: UI Planner Agent & `omnidev plan --ui`
+- **Description:** Implement `--ui` flag in `src/commands/plan.ts` and `runPlanner` in `src/agents/planner.ts`. Uses specialized `UI_PLANNER_SYSTEM_PROMPT` and passes block catalog to generate discrete vertical tasks and a structured JSON sitemap block. Automatically extracts and persists `.omnidev/sitemap.json`.
+- **Acceptance Criteria:**
+  - `omnidev plan --ui "<prompt>"` outputs markdown plan and writes `.omnidev/sitemap.json`.
+  - Gracefully recovers with fallback sitemap if LLM omits valid JSON.
+  - Updates terminal UI with UI planning banner and next-step guidance (`omnidev code --ui`).
+- **Verification:**
+  - `npm test tests/integration/planner.test.ts`
+- **Files:** `src/agents/planner.ts`, `src/commands/plan.ts`, `tests/integration/planner.test.ts`
+- **Scope:** Medium (3 files)
+
+#### Task 6.4: Relume Component Assembler & `omnidev code --ui`
+- **Description:** Implement `--ui` flag in `src/commands/code.ts` and `runCoder` in `src/agents/coder.ts`. Reads `.omnidev/sitemap.json` and prompts the Coder agent to generate complete, styled React + TypeScript + Tailwind section components in `src/components/sections/` and assemble the main page (`src/App.tsx` or `app/page.tsx`) with the exact copywriting props.
+- **Acceptance Criteria:**
+  - `omnidev code --ui` loads `.omnidev/sitemap.json` and passes structured context to coder.
+  - Generates component files and assembled page without requiring a paid Relume API subscription.
+  - Updates `.omnidev/state.json` and `.omnidev/plan.md`.
+- **Verification:**
+  - `npm test tests/integration/coder.test.ts`
+- **Files:** `src/agents/coder.ts`, `src/commands/code.ts`, `tests/integration/coder.test.ts`
+- **Scope:** Medium (3 files)
+
+---
 ## 4. Risks and Mitigations
 
 | Risk | Impact | Mitigation Strategy |
