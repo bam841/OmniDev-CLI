@@ -27,3 +27,12 @@
 - [x] Task 5.1: Error Handling, Resiliency & Offline Edge Cases (`src/utils/errors.ts`)
 - [x] Task 5.2: Documentation, README & Distribution Packaging (`README.md`, `npm pack`)
 - [x] **Checkpoint: Release Ready** (Clean build, 50/50 tests passing, package tarball validated)
+
+## Phase 6: OmniDev Interactive Chatbot (BYOK Conversational Interface)
+- [ ] Task 6.1: Multi-Turn Message Support in `LLMRouter` (`src/core/llm/router.ts`)
+- [ ] Task 6.2: Chat Session Store & Sliding-Window Pruning (`src/chat/session.ts`)
+- [ ] Task 6.3: In-Chat Slash Command Dispatcher (`src/chat/commands.ts`)
+- [ ] Task 6.4: Interactive Terminal REPL & Live Chunk Streaming (`src/chat/repl.ts`)
+- [ ] Task 6.5: `omnidev chat` Command & Default Bare CLI Entry (`src/commands/chat.ts`, `src/index.ts`)
+- [ ] Task 6.6: Chatbot Unit Tests & Documentation (`tests/unit/chat-*.test.ts`, `README.md`)
+- [ ] **Checkpoint: Interactive Chatbot Operational** (Verified multi-turn conversation & model switching across providers)
